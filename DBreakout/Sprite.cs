@@ -34,8 +34,15 @@ namespace DBreakout
 
         public Sprite()
         {
-            position = new Vector2(10, 10);
+            position = new Vector2(0, 0);
             name = "newSprite";
+            scale = 1f;
+        }
+
+        public Sprite(string assetName)
+        {
+            position = new Vector2(0, 0);
+            name = assetName;
             scale = 1f;
         }
 
@@ -44,7 +51,7 @@ namespace DBreakout
         public void LoadContent(ContentManager theContentManager, string theAssetName)
         {
             spriteTexture = theContentManager.Load<Texture2D>(theAssetName);
-            size = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
+            size = new Rectangle(0, 0, (int)(spriteTexture.Width * scale), (int)(spriteTexture.Height * scale));
         }
 
 
@@ -52,7 +59,6 @@ namespace DBreakout
         public void Update(GameTime theGameTime, Vector2 theSpeed, Vector2 theDirection)
         {
             position += theDirection * theSpeed * (float)theGameTime.ElapsedGameTime.TotalSeconds;
-            
         }
 
         
@@ -62,6 +68,15 @@ namespace DBreakout
             Rectangle tmpRec = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
             theSpriteBatch.Draw(spriteTexture, position, tmpRec, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
+
+
+        // overloaded the draw method, to scale a BG image to be the size of specified rectangle
+        public void Draw(SpriteBatch theSpriteBatch, Rectangle restrict)
+        {
+            Rectangle tmpRec = new Rectangle(0, 0, restrict.Width, restrict.Height);
+            theSpriteBatch.Draw(spriteTexture, position, tmpRec, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
+        }
+
 
     }
 }

@@ -18,13 +18,18 @@ namespace DBreakout
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        Rectangle playArea;
-        const int BUFFER_TOP = 0;
-        const int BUFFER_BOTTOM = 0;
-        const int BUFFER_LEFT = 0;
-        const int BUFFER_RIGHT = 0;
 
-        Paddle paddle;
+        Sprite background;
+        Sprite brickAreaBackground;
+        Sprite playAreaBackground;
+
+        Rectangle playArea;
+        const int BUFFER_TOP = 5;
+        const int BUFFER_BOTTOM = 5;
+        const int BUFFER_LEFT = 5;
+        const int BUFFER_RIGHT = 5;
+
+        Paddle paddle; 
         const int PADDLE_X = 20;
 
         Ball ball;
@@ -32,7 +37,7 @@ namespace DBreakout
         Rectangle brickArea;
         const int BRICK_BUFFER_TOP = 40;
         const int BRICK_BUFFER_BOTTOM = 40;
-        const int BRICK_BUFFER_LEFT = 100;
+        const int BRICK_BUFFER_LEFT = 200;
         const int BRICK_BUFFER_RIGHT = 40;
         //TODO:  in the LoadContent, or somewhere, have a function to fill the brickArea with bricks, random power,
         Brick[] bricks;
@@ -43,7 +48,8 @@ namespace DBreakout
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
 
-            playArea = new Rectangle(BUFFER_LEFT, BUFFER_TOP, graphics.PreferredBackBufferWidth-(BUFFER_LEFT+BUFFER_RIGHT), graphics.PreferredBackBufferHeight-(BUFFER_TOP+BUFFER_BOTTOM));
+            playArea = new Rectangle(BUFFER_LEFT, BUFFER_TOP, graphics.PreferredBackBufferWidth - (BUFFER_LEFT + BUFFER_RIGHT), graphics.PreferredBackBufferHeight - (BUFFER_TOP + BUFFER_BOTTOM));
+            brickArea = new Rectangle(playArea.X + BRICK_BUFFER_LEFT, playArea.Y + BRICK_BUFFER_TOP, playArea.Width - (BRICK_BUFFER_LEFT + BRICK_BUFFER_RIGHT), playArea.Height - (BRICK_BUFFER_TOP + BRICK_BUFFER_BOTTOM));
         }
 
         /// <summary>
@@ -55,11 +61,21 @@ namespace DBreakout
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            background = new Sprite("MetalB");
+            playAreaBackground = new Sprite("SolidTanBG");
+            brickAreaBackground = new Sprite("SolidBrownBG");
             paddle = new Paddle(playArea);
             ball = new Ball(playArea);
             aBrick = new Brick(playArea, 3);
 
             base.Initialize();
+
+            background.position = Vector2.Zero;
+            playAreaBackground.position = new Vector2(playArea.X, playArea.Y);
+            playAreaBackground.size = playArea; //TODO: not working
+            brickAreaBackground.position = new Vector2(brickArea.X, brickArea.Y);
+            brickAreaBackground.size = brickArea;  //TODO: not working
+
 
             paddle.position = new Vector2(playArea.X + PADDLE_X, (playArea.Y + playArea.Height / 2) - (paddle.size.Height / 2));
             ball.position = new Vector2(playArea.X + playArea.Width / 2, playArea.X + playArea.Height / 2);
@@ -77,9 +93,11 @@ namespace DBreakout
             playArea.Width = GraphicsDevice.Viewport.Width;
             playArea.Height = GraphicsDevice.Viewport.Height;
 
-
+            background.LoadContent(this.Content, "SolidTanBG");
+            playAreaBackground.LoadContent(this.Content, "MetalBG");
+            brickAreaBackground.LoadContent(this.Content, "SolidBrownBG");
             paddle.LoadContent(this.Content, "Paddle");
-            ball.LoadContent(this.Content, "Ball");
+            ball.LoadContent(this.Content, "Ball2");
             aBrick.LoadContent(this.Content, "Brick");
 
         }
@@ -140,6 +158,9 @@ namespace DBreakout
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
+            background.Draw(this.spriteBatch);
+            playAreaBackground.Draw(this.spriteBatch, playArea);
+            brickAreaBackground.Draw(this.spriteBatch, brickArea);
             paddle.Draw(this.spriteBatch);
             ball.Draw(this.spriteBatch);
             aBrick.Draw(this.spriteBatch);
