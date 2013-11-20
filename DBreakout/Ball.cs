@@ -139,6 +139,23 @@ namespace DBreakout
         }
 
 
+        public bool CheckBrickCollision(Rectangle brickLocation)
+        {
+            bool isCollision = false;
+            Rectangle ballLocation = new Rectangle((int)position.X, (int)position.Y, spriteTexture.Width, spriteTexture.Height);
+
+            if (brickLocation.Intersects(ballLocation))
+            {
+                isCollision = true;
+                //calc new ball trajectory for ball, here.  brick breaking handled elsewhere.
+                //TODO: handle vertical intersections
+                speed.X *= -1;
+            }
+
+            return isCollision;
+        }
+
+
 
     }
 }

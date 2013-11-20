@@ -16,10 +16,9 @@ namespace DBreakout
         const string BRICK_NAME = "Brick";
         const int START_POS_X = 125;
         const int START_POS_Y = 200;
-        int maxDamage;
-        int damage;
-        Rectangle playArea;
-
+        public int maxDamage;
+        public int damage;
+        public Color color;
         
         enum State
         {
@@ -28,15 +27,8 @@ namespace DBreakout
         State currentState = State.breakable;
 
 
-        public Brick(Rectangle areaBounds)
+        public Brick(int power, Color c)
         {
-            playArea = areaBounds;
-        }
-
-
-        public Brick(Rectangle areaBounds, int power)
-        {
-            playArea = areaBounds;
             if (power == -1)
                 currentState = State.invincible;
             else
@@ -45,6 +37,7 @@ namespace DBreakout
                 maxDamage = power;
             }
             damage = 0;
+            color = c;
         }
 
 
@@ -58,7 +51,7 @@ namespace DBreakout
         public void Update(GameTime theGameTime)
         {
             //TODO: is this needed? we don't need to update every brick, every time, do we?
-            //TODO: how do i call base.Update without a speed?
+            //TODO: how do I call base.Update without a speed?
             base.Update(theGameTime, Vector2.Zero, Vector2.Zero);
         }
 

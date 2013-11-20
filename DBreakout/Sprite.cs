@@ -18,7 +18,7 @@ namespace DBreakout
         public Vector2 position;
         protected Texture2D spriteTexture;
         protected float scale;
-
+        Color color;
 
         public float Scale
         {
@@ -45,6 +45,15 @@ namespace DBreakout
             name = assetName;
             scale = 1f;
         }
+
+        public Sprite(string assetName, Color c)
+        {
+            position = new Vector2(0, 0);
+            name = assetName;
+            scale = 1f;
+            color = c;
+        }
+
 
 
         //Load the texture for the sprite using the Content Pipeline
@@ -77,6 +86,12 @@ namespace DBreakout
             theSpriteBatch.Draw(spriteTexture, position, tmpRec, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
+        // overloaded the draw method, to scale a BG image to be the size of specified rectangle
+        public void Draw(SpriteBatch theSpriteBatch, Color c)
+        {
+            Rectangle tmpRec = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
+            theSpriteBatch.Draw(spriteTexture, position, tmpRec, c, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
+        }
 
     }
 }

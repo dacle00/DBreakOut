@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Collections;
 
 namespace DBreakout
 {
@@ -24,10 +25,10 @@ namespace DBreakout
         Sprite playAreaBackground;
 
         Rectangle playArea;
-        const int BUFFER_TOP = 5;
-        const int BUFFER_BOTTOM = 5;
-        const int BUFFER_LEFT = 5;
-        const int BUFFER_RIGHT = 5;
+        const int BUFFER_TOP = 0;
+        const int BUFFER_BOTTOM = 0;
+        const int BUFFER_LEFT = 0;
+        const int BUFFER_RIGHT = 0;
 
         Paddle paddle; 
         const int PADDLE_X = 20;
@@ -39,9 +40,15 @@ namespace DBreakout
         const int BRICK_BUFFER_BOTTOM = 40;
         const int BRICK_BUFFER_LEFT = 200;
         const int BRICK_BUFFER_RIGHT = 40;
-        //TODO:  in the LoadContent, or somewhere, have a function to fill the brickArea with bricks, random power,
+
+        //ArrayList levels;
+        //int levelnum;
+        //Level CurrentLevel;
+        int numBricks=5;
         Brick[] bricks;
         Brick aBrick;
+        Color[] colors = {Color.Wheat, Color.Chartreuse, Color.Beige, Color.DarkSalmon, Color.Gainsboro};
+        
 
         public Game1()
         {
@@ -66,7 +73,15 @@ namespace DBreakout
             brickAreaBackground = new Sprite("SolidBrownBG");
             paddle = new Paddle(playArea);
             ball = new Ball(playArea);
-            aBrick = new Brick(playArea, 3);
+            aBrick = new Brick(4, Color.White);
+
+            bricks = new Brick[numBricks];
+            for (int i = 0; i<numBricks; i++)
+            {
+                Random rnd = new Random();
+                int r = rnd.Next(1, 3);
+                bricks[i] = new Brick(r, colors[i]);
+            }
 
             base.Initialize();
 
@@ -78,8 +93,14 @@ namespace DBreakout
 
 
             paddle.position = new Vector2(playArea.X + PADDLE_X, (playArea.Y + playArea.Height / 2) - (paddle.size.Height / 2));
-            ball.position = new Vector2(playArea.X + playArea.Width / 2, playArea.X + playArea.Height / 2);
-            aBrick.position = new Vector2(playArea.X + playArea.Width / 4, playArea.X + playArea.Height / 4);
+            ball.position = new Vector2(paddle.position.X + ball.size.Width +paddle.size.Width, paddle.position.Y + (paddle.size.Height / 2));
+            aBrick.position = new Vector2(brickArea.X, brickArea.Y + aBrick.size.Height);
+
+            for (int i = 0; i < numBricks; i++)
+            {
+                bricks[i].position = new Vector2(brickArea.X + brickArea.Width-(numBricks*bricks[i].size.Width) + (i* bricks[i].size.Width), brickArea.Y + (i * bricks[i].size.Height));
+            }
+
         }
 
         /// <summary>``````````````````````````
@@ -99,7 +120,10 @@ namespace DBreakout
             paddle.LoadContent(this.Content, "Paddle");
             ball.LoadContent(this.Content, "Ball2");
             aBrick.LoadContent(this.Content, "Brick");
-
+            for (int i = 0; i < numBricks; i++)
+            {
+                bricks[i].LoadContent(this.Content, "Brick");
+            }
         }
 
         /// <summary>
@@ -125,7 +149,23 @@ namespace DBreakout
             // TODO: Add your update logic here
             paddle.Update(gameTime);
             ball.Update(gameTime);
-            
+            aBrick.Update(gameTime);
+
+            //EACH Brick
+            for (int i = 0; i < numBricks; i++)
+            {
+                bricks[i].Update(gameTime);
+
+                // Check BALL HIT BRICK
+                Rectangle brkLoc = new Rectangle((int)bricks[i].position.X, (int)bricks[i].position.Y, bricks[i].size.Width, bricks[i].size.Height);
+                bool brickHit = ball.CheckBrickCollision(brkLoc);
+                if (brickHit)
+                {
+                    //play sound
+                    //sticky?
+                    //accel?
+                }
+            }
             //CHECK BALL HIT PADDLE
             bool paddleHit = ball.CheckPaddleCollision(new Rectangle((int)paddle.position.X, (int)paddle.position.Y, paddle.size.Width, paddle.size.Height));
             if(paddleHit)
@@ -135,16 +175,6 @@ namespace DBreakout
                 //accel?
             }
 
-            // Check BALL HIT BRICK
-            /*
-            bool brickHit = ball.CheckBrickCollision(aBrick);
-            if (brickHit)
-            {
-                //play sound
-                //sticky?
-                //accel?
-            }
-            */
 
             base.Update(gameTime);
         }
@@ -155,15 +185,21 @@ namespace DBreakout
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+c            GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
             background.Draw(this.spriteBatch);
             playAreaBackground.Draw(this.spriteBatch, playArea);
-            brickAreaBackground.Draw(this.spriteBatch, brickArea);
+            //brickAreaBackground.Draw(this.spriteBatch, brickArea);
             paddle.Draw(this.spriteBatch);
             ball.Draw(this.spriteBatch);
-            aBrick.Draw(this.spriteBatch);
+            //aBrick.Draw(this.spriteBatch);
+
+            for (int i = 0; i < numBricks; i++)
+            {
+                bricks[i].Draw(this.spriteBatch, bricks[i].color);
+            }
+            
             spriteBatch.End();
             
             base.Draw(gameTime);

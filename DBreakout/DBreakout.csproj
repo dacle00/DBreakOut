@@ -18,6 +18,7 @@
     <XnaOutputType>Game</XnaOutputType>
     <ApplicationIcon>Game.ico</ApplicationIcon>
     <Thumbnail>GameThumbnail.png</Thumbnail>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -30,7 +31,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -109,6 +109,7 @@
   <ItemGroup>
     <Compile Include="Ball.cs" />
     <Compile Include="Brick.cs" />
+    <Compile Include="Level.cs" />
     <Compile Include="Paddle.cs" />
     <Compile Include="Sprite.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -121,8 +122,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DBreakoutContent\DBreakoutContent.contentproj">
-      <Name>DBreakoutContent</Name>
+      <Name>DBreakoutContent %28Content%29</Name>
       <XnaReferenceType>Content</XnaReferenceType>
+      <Project>{1A9B5834-101D-4435-B047-1B580B5FF8CF}</Project>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
