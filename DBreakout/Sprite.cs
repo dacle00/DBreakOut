@@ -15,7 +15,7 @@ namespace DBreakout
         //Details
         protected string name;
         public Rectangle size;
-        public Vector2 position;
+        public Vector2 position, position_prev;
         protected Texture2D spriteTexture;
         protected float scale;
         Color color;
@@ -35,6 +35,7 @@ namespace DBreakout
         public Sprite()
         {
             position = new Vector2(0, 0);
+            position_prev = new Vector2(0, 0);
             name = "newSprite";
             scale = 1f;
         }
@@ -42,6 +43,7 @@ namespace DBreakout
         public Sprite(string assetName)
         {
             position = new Vector2(0, 0);
+            position_prev = new Vector2(0, 0);
             name = assetName;
             scale = 1f;
         }
@@ -49,6 +51,7 @@ namespace DBreakout
         public Sprite(string assetName, Color c)
         {
             position = new Vector2(0, 0);
+            position_prev = new Vector2(0, 0);
             name = assetName;
             scale = 1f;
             color = c;
@@ -67,6 +70,7 @@ namespace DBreakout
         //Update the Sprite and change it's position based on the passed in speed, direction and elapsed time.
         public void Update(GameTime theGameTime, Vector2 theSpeed, Vector2 theDirection)
         {
+            position_prev = position;
             position += theDirection * theSpeed * (float)theGameTime.ElapsedGameTime.TotalSeconds;
         }
 

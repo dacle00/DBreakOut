@@ -40,23 +40,13 @@ namespace DBreakout
         const int BRICK_BUFFER_BOTTOM = 40;
         const int BRICK_BUFFER_LEFT = 200;
         const int BRICK_BUFFER_RIGHT = 40;
-
-        //ArrayList levels;
-        //int levelnum;
-        //Level CurrentLevel;
-        int numBricks=5;
-        Brick[] bricks;
-        Brick aBrick;
-        Color[] colors = {Color.Wheat, Color.Chartreuse, Color.Beige, Color.DarkSalmon, Color.Gainsboro};
+        Level currentLevel;
         
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-
-            playArea = new Rectangle(BUFFER_LEFT, BUFFER_TOP, graphics.PreferredBackBufferWidth - (BUFFER_LEFT + BUFFER_RIGHT), graphics.PreferredBackBufferHeight - (BUFFER_TOP + BUFFER_BOTTOM));
-            brickArea = new Rectangle(playArea.X + BRICK_BUFFER_LEFT, playArea.Y + BRICK_BUFFER_TOP, playArea.Width - (BRICK_BUFFER_LEFT + BRICK_BUFFER_RIGHT), playArea.Height - (BRICK_BUFFER_TOP + BRICK_BUFFER_BOTTOM));
         }
 
         /// <summary>
@@ -71,19 +61,17 @@ namespace DBreakout
             background = new Sprite("MetalB");
             playAreaBackground = new Sprite("SolidTanBG");
             brickAreaBackground = new Sprite("SolidBrownBG");
-            paddle = new Paddle(playArea);
-            ball = new Ball(playArea);
-            aBrick = new Brick(4, Color.White);
-
-            bricks = new Brick[numBricks];
-            for (int i = 0; i<numBricks; i++)
-            {
-                Random rnd = new Random();
-                int r = rnd.Next(1, 3);
-                bricks[i] = new Brick(r, colors[i]);
-            }
+            paddle = new Paddle();
+            ball = new Ball();
+            currentLevel = new Level();
 
             base.Initialize();
+
+            playArea = new Rectangle(BUFFER_LEFT, BUFFER_TOP, graphics.PreferredBackBufferWidth - (BUFFER_LEFT + BUFFER_RIGHT), graphics.PreferredBackBufferHeight - (BUFFER_TOP + BUFFER_BOTTOM));
+            brickArea = new Rectangle(playArea.X + BRICK_BUFFER_LEFT, playArea.Y + BRICK_BUFFER_TOP, playArea.Width - (BRICK_BUFFER_LEFT + BRICK_BUFFER_RIGHT), playArea.Height - (BRICK_BUFFER_TOP + BRICK_BUFFER_BOTTOM));
+            paddle.definePlayArea(playArea);
+            ball.definePlayArea(playArea);
+            currentLevel.defineBrickArea(brickArea);
 
             background.position = Vector2.Zero;
             playAreaBackground.position = new Vector2(playArea.X, playArea.Y);
@@ -91,15 +79,8 @@ namespace DBreakout
             brickAreaBackground.position = new Vector2(brickArea.X, brickArea.Y);
             brickAreaBackground.size = brickArea;  //TODO: not working
 
-
             paddle.position = new Vector2(playArea.X + PADDLE_X, (playArea.Y + playArea.Height / 2) - (paddle.size.Height / 2));
             ball.position = new Vector2(paddle.position.X + ball.size.Width +paddle.size.Width, paddle.position.Y + (paddle.size.Height / 2));
-            aBrick.position = new Vector2(brickArea.X, brickArea.Y + aBrick.size.Height);
-
-            for (int i = 0; i < numBricks; i++)
-            {
-                bricks[i].position = new Vector2(brickArea.X + brickArea.Width-(numBricks*bricks[i].size.Width) + (i* bricks[i].size.Width), brickArea.Y + (i * bricks[i].size.Height));
-            }
 
         }
 
@@ -119,10 +100,11 @@ namespace DBreakout
             brickAreaBackground.LoadContent(this.Content, "SolidBrownBG");
             paddle.LoadContent(this.Content, "Paddle");
             ball.LoadContent(this.Content, "Ball2");
-            aBrick.LoadContent(this.Content, "Brick");
-            for (int i = 0; i < numBricks; i++)
+
+            currentLevel = new Level(brickArea, 1); // level 1
+            for (int i = 0; i < currentLevel.numBricks; i++)
             {
-                bricks[i].LoadContent(this.Content, "Brick");
+                currentLevel.bricks[i].LoadContent(this.Content, "Brick");
             }
         }
 
@@ -149,27 +131,52 @@ namespace DBreakout
             // TODO: Add your update logic here
             paddle.Update(gameTime);
             ball.Update(gameTime);
-            aBrick.Update(gameTime);
+            currentLevel.Update(gameTime);
 
-            //EACH Brick
-            for (int i = 0; i < numBricks; i++)
+            //EACH 
+            for (int i = 0; i < currentLevel.numBricks; i++)
             {
-                bricks[i].Update(gameTime);
+                currentLevel.bricks[i].Update(gameTime);
 
                 // Check BALL HIT BRICK
-                Rectangle brkLoc = new Rectangle((int)bricks[i].position.X, (int)bricks[i].position.Y, bricks[i].size.Width, bricks[i].size.Height);
-                bool brickHit = ball.CheckBrickCollision(brkLoc);
+                bool brickHit = ball.CheckBrickCollision(currentLevel.bricks[i].position,currentLevel.bricks[i].size);
                 if (brickHit)
                 {
+                    //detremine new ball direction and dock ball to collided object
+                    
+                    Vector2 ballNewDir = ball.CollisionDetermineNewDirection(currentLevel.bricks[i].position, currentLevel.bricks[i].size);  //sets one non-zero field in ballNewDir
+                    if (ballNewDir.X != 0)
+                    {
+                        ball.direction.X = ballNewDir.X;
+                        if (ballNewDir.X < 0)
+                            ball.position.X = currentLevel.bricks[i].position.X - ball.size.Width;
+                        else // if (ballNewDir.X > 0)
+                            ball.position.X = currentLevel.bricks[i].position.X + currentLevel.bricks[i].size.Width;
+                    }
+                    else if (ballNewDir.Y != 0)
+                    {
+                        ball.direction.Y = ballNewDir.Y;
+                        if (ballNewDir.Y < 0)
+                            ball.position.Y = currentLevel.bricks[i].position.Y - ball.size.Width;
+                        else // if (ballNewDir.Y > 0)
+                            ball.position.Y = currentLevel.bricks[i].position.Y + currentLevel.bricks[i].size.Height;
+                    }
+                    else
+                        ball.speed = Vector2.Zero; //this should never happen!
+                   
+
+                    
+                    
+                    
                     //play sound
                     //sticky?
-                    //accel?
                 }
             }
             //CHECK BALL HIT PADDLE
             bool paddleHit = ball.CheckPaddleCollision(new Rectangle((int)paddle.position.X, (int)paddle.position.Y, paddle.size.Width, paddle.size.Height));
             if(paddleHit)
             {
+                
                 //play sound
                 //sticky?
                 //accel?
@@ -185,23 +192,20 @@ namespace DBreakout
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-c            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            background.Draw(this.spriteBatch);
-            playAreaBackground.Draw(this.spriteBatch, playArea);
-            //brickAreaBackground.Draw(this.spriteBatch, brickArea);
-            paddle.Draw(this.spriteBatch);
-            ball.Draw(this.spriteBatch);
-            //aBrick.Draw(this.spriteBatch);
-
-            for (int i = 0; i < numBricks; i++)
             {
-                bricks[i].Draw(this.spriteBatch, bricks[i].color);
+                background.Draw(this.spriteBatch);
+                playAreaBackground.Draw(this.spriteBatch, playArea);
+                //brickAreaBackground.Draw(this.spriteBatch, currentLevel.brickArea);
+                paddle.Draw(this.spriteBatch);
+                ball.Draw(this.spriteBatch);
+                for (int i = 0; i < currentLevel.numBricks; i++)
+                    currentLevel.bricks[i].Draw(this.spriteBatch, currentLevel.bricks[i].color);
             }
-            
             spriteBatch.End();
-            
+
             base.Draw(gameTime);
         }
     }

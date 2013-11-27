@@ -35,12 +35,9 @@ namespace DBreakout
         KeyboardState prevKeyboardState;
 
 
-        public Paddle(Rectangle areaBounds)
+        public Paddle()
         {
-            playArea = areaBounds;
         }
-
-
 
 
         public void LoadContent(ContentManager theContentManager)
@@ -94,10 +91,15 @@ namespace DBreakout
                         position.Y = playArea.Height - size.Height;
                     }
                 }
-
-
             }
         }
+
+
+        public void definePlayArea(Rectangle area)
+        {
+            playArea = area;
+        }
+
 
     }
 }
