@@ -138,12 +138,12 @@ namespace DBreakout
             {
                 currentLevel.bricks[i].Update(gameTime);
 
-                // Check BALL HIT BRICK
+                ///////////////////////////////
+                // Collision: BALL HIT BRICK //
                 bool brickHit = ball.CheckBrickCollision(currentLevel.bricks[i].position,currentLevel.bricks[i].size);
                 if (brickHit)
                 {
                     //detremine new ball direction and dock ball to collided object
-                    
                     Vector2 ballNewDir = ball.CollisionDetermineNewDirection(currentLevel.bricks[i].position, currentLevel.bricks[i].size);  //sets one non-zero field in ballNewDir
                     if (ballNewDir.X != 0)
                     {
@@ -163,23 +163,21 @@ namespace DBreakout
                     }
                     else
                         ball.speed = Vector2.Zero; //this should never happen!
-                   
-
                     
-                    
-                    
-                    //play sound
-                    //sticky?
+                    //TODO: play sound
+                    //TOOD: sticky powerup?
                 }
             }
-            //CHECK BALL HIT PADDLE
+
+            ////////////////////////////////
+            // Collision: BALL HIT PADDLE //
             bool paddleHit = ball.CheckPaddleCollision(new Rectangle((int)paddle.position.X, (int)paddle.position.Y, paddle.size.Width, paddle.size.Height));
             if(paddleHit)
             {
-                
+                //TODO:  bring game logic from the CheckCollision method, to here.
                 //play sound
-                //sticky?
-                //accel?
+                //sticky powerup?
+                //accel ball?
             }
 
 

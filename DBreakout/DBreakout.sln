@@ -1,0 +1,30 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C# Express 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBreakout", "DBreakout.csproj", "{95C68B92-A15A-41CC-99DD-FE8EE506E25E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBreakoutContent", "..\DBreakoutContent\DBreakoutContent.contentproj", "{1A9B5834-101D-4435-B047-1B580B5FF8CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{95C68B92-A15A-41CC-99DD-FE8EE506E25E}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{95C68B92-A15A-41CC-99DD-FE8EE506E25E}.Debug|x86.ActiveCfg = Debug|x86
+		{95C68B92-A15A-41CC-99DD-FE8EE506E25E}.Debug|x86.Build.0 = Debug|x86
+		{95C68B92-A15A-41CC-99DD-FE8EE506E25E}.Release|Any CPU.ActiveCfg = Release|x86
+		{95C68B92-A15A-41CC-99DD-FE8EE506E25E}.Release|x86.ActiveCfg = Release|x86
+		{95C68B92-A15A-41CC-99DD-FE8EE506E25E}.Release|x86.Build.0 = Release|x86
+		{1A9B5834-101D-4435-B047-1B580B5FF8CF}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{1A9B5834-101D-4435-B047-1B580B5FF8CF}.Debug|x86.ActiveCfg = Debug|x86
+		{1A9B5834-101D-4435-B047-1B580B5FF8CF}.Release|Any CPU.ActiveCfg = Release|x86
+		{1A9B5834-101D-4435-B047-1B580B5FF8CF}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

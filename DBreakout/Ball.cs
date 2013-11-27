@@ -179,6 +179,16 @@ namespace DBreakout
             return isCollision;
         }
 
+        public bool CheckBrickCollision(Vector2 brickPos, Rectangle brickSize)
+        {
+            Rectangle brickLocation = new Rectangle((int)brickPos.X, (int)brickPos.Y, brickSize.Width, brickSize.Height);
+            Rectangle ballLocation = new Rectangle((int)position.X, (int)position.Y, spriteTexture.Width, spriteTexture.Height);
+
+            return brickLocation.Intersects(ballLocation);
+        }
+
+
+
 
         //if ball is more than 45* to side of object, bounce horizontally
         //else, ball is more 45* or more to top/bottom, so bounce vertically
@@ -186,76 +196,62 @@ namespace DBreakout
         {
             //TODO: if ball is moving perfectly left/right or up/down
             Rectangle objLocation = new Rectangle((int)brickPos.X, (int)brickPos.Y, brickSize.Width, brickSize.Height);
+            Rectangle ballLocation = new Rectangle((int)position.X, (int)position.Y, size.Width, size.Height);
             Vector2 newDirection = Vector2.Zero;
+
+            float distance_BallTop_objBottom = Math.Abs(objLocation.Bottom - ballLocation.Top);
+            float distance_BallBottom_objTop = Math.Abs(ballLocation.Bottom - objLocation.Top);
+            float distance_BallLeft_objRight = Math.Abs(objLocation.Right - ballLocation.Left);
+            float distance_BallRight_objLeft = Math.Abs(ballLocation.Right - objLocation.Left);
 
             //Ball is moving UP, focus bottom edge and a side
             if (direction.Y == MOVE_UP)
             {
-                float distance_BallTop_objBottom = Math.Abs(position.Y - objLocation.Y + objLocation.Height);
-
                 // UP AND LEFT - focus bottom edge and right side
                 if (direction.X == MOVE_LEFT)
                 {
-                    float distance_BallLeft_objRight = Math.Abs(position.X - objLocation.X + objLocation.Width);
                     if (distance_BallLeft_objRight < distance_BallTop_objBottom)
-                        newDirection.X = 1;  //bounce RIGHT
+                        newDirection.X = MOVE_RIGHT;  //bounce RIGHT
                     else
-                        newDirection.Y = 1;  //boune DOWN
+                        newDirection.Y = MOVE_DOWN;  //boune DOWN
                 }
 
                 // UP AND RIGHT - focus bottom edge and left side
                 else
                 {
-                    float distance_BallRight_objLeft = Math.Abs(position.X + size.Width - objLocation.X);
                     if (distance_BallRight_objLeft < distance_BallTop_objBottom)
-                        newDirection.X = -1; //bounce LEFT
+                        newDirection.X = MOVE_LEFT; //bounce LEFT
                     else
-                        newDirection.Y = 1;  //bounce DOWN
+                        newDirection.Y = MOVE_DOWN;  //bounce DOWN
                 }
             }
 
             // Ball is moving DOWN - focus top edge and a side
             else // if (direction.Y == MOVE_DOWN)
             {
-                float distance_BallBottom_objTop = Math.Abs(position.Y + size.Height - objLocation.Y);
 
                 // DOWN AND LEFT - focus top edge and right side
                 if (direction.X == MOVE_LEFT)
                 {
-                    float distance_BallLeft_objRight = Math.Abs(position.X - objLocation.X + objLocation.Width);
                     if (distance_BallLeft_objRight < distance_BallBottom_objTop)
-                        newDirection.X = 1;  //bounce RIGHT
+                        newDirection.X = MOVE_RIGHT;  //bounce RIGHT
                     else
-                        newDirection.Y = -1; //bouce UP
+                        newDirection.Y = MOVE_UP; //bouce UP
                 }
 
                 // DOWN AND RIGHT - focus top edge and left side
                 else
                 {
-                    float distance_BallRight_objLeft = Math.Abs(position.X + size.Width - objLocation.X);
                     if (distance_BallRight_objLeft < distance_BallBottom_objTop)
-                        newDirection.X = -1; //bounce LEFT
+                        newDirection.X = MOVE_LEFT; //bounce LEFT
                     else
-                        newDirection.Y = -1; //bounce UP
+                        newDirection.Y = MOVE_UP; //bounce UP
                 }
             }
-
 
             //newDirection contains only one non-zero value. 
             //the non-zero value can be used to bounce the ball;
             return newDirection;
-        }
-
-
-
-
-
-        public bool CheckBrickCollision(Vector2 brickPos, Rectangle brickSize)
-        {
-            Rectangle brickLocation = new Rectangle((int)brickPos.X, (int)brickPos.Y, brickSize.Width, brickSize.Height);
-            Rectangle ballLocation = new Rectangle((int)position.X, (int)position.Y, spriteTexture.Width, spriteTexture.Height);
-            
-            return brickLocation.Intersects(ballLocation);
         }
 
 
