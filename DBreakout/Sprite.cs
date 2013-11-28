@@ -16,9 +16,12 @@ namespace DBreakout
         protected string name;
         public Rectangle size;
         public Vector2 position, position_prev;
+        public Vector2 fontPosition;
         protected Texture2D spriteTexture;
         protected float scale;
         Color color;
+        SpriteFont debugFont;
+        Color debugColor = Color.Orange;
 
         public float Scale
         {
@@ -36,6 +39,7 @@ namespace DBreakout
         {
             position = new Vector2(0, 0);
             position_prev = new Vector2(0, 0);
+            fontPosition = new Vector2(0, -30);
             name = "newSprite";
             scale = 1f;
         }
@@ -44,6 +48,7 @@ namespace DBreakout
         {
             position = new Vector2(0, 0);
             position_prev = new Vector2(0, 0);
+            fontPosition = new Vector2(0, -30);
             name = assetName;
             scale = 1f;
         }
@@ -52,6 +57,7 @@ namespace DBreakout
         {
             position = new Vector2(0, 0);
             position_prev = new Vector2(0, 0);
+            fontPosition = new Vector2(0, -30);
             name = assetName;
             scale = 1f;
             color = c;
@@ -64,6 +70,8 @@ namespace DBreakout
         {
             spriteTexture = theContentManager.Load<Texture2D>(theAssetName);
             size = new Rectangle(0, 0, (int)(spriteTexture.Width * scale), (int)(spriteTexture.Height * scale));
+            debugFont = theContentManager.Load<SpriteFont>("fnt");
+
         }
 
 
@@ -72,11 +80,12 @@ namespace DBreakout
         {
             position_prev = position;
             position += theDirection * theSpeed * (float)theGameTime.ElapsedGameTime.TotalSeconds;
+            fontPosition = new Vector2(position.X, position.Y - 30);
         }
 
         
         //Draw the sprite to the screen
-        public void Draw(SpriteBatch theSpriteBatch, float slope = 0f)
+        public void Draw(SpriteBatch theSpriteBatch, float slope = 0f, String strDebug = "")
         {
 
             Vector2 origin = Vector2.Zero;
@@ -89,21 +98,37 @@ namespace DBreakout
             }
             Rectangle tmpRec = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
             theSpriteBatch.Draw(spriteTexture, position+origin, tmpRec, Color.White, slope, origin, scale, SpriteEffects.None, 0);
+
+            if (strDebug != null)
+            {
+                theSpriteBatch.DrawString(debugFont, strDebug, position + fontPosition, debugColor);
+            }
+
         }
 
 
         // overloaded the draw method, to scale a BG image to be the size of specified rectangle
-        public void Draw(SpriteBatch theSpriteBatch, Rectangle restrict)
+        public void Draw(SpriteBatch theSpriteBatch, Rectangle restrict, String strDebug = "")
         {
             Rectangle tmpRec = new Rectangle(0, 0, restrict.Width, restrict.Height);
             theSpriteBatch.Draw(spriteTexture, position, tmpRec, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
+
+            if (strDebug != null)
+            {
+                theSpriteBatch.DrawString(debugFont, strDebug, position + fontPosition, debugColor);
+            }
         }
 
         // overloaded the draw method, to colorize sprites
-        public void Draw(SpriteBatch theSpriteBatch, Color c)
+        public void Draw(SpriteBatch theSpriteBatch, Color c, String strDebug = "")
         {
             Rectangle tmpRec = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
             theSpriteBatch.Draw(spriteTexture, position, tmpRec, c, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
+
+            if (strDebug != null)
+            {
+                theSpriteBatch.DrawString(debugFont, strDebug, position + fontPosition, debugColor);
+            }
         }
 
     }

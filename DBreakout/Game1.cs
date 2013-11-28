@@ -20,6 +20,7 @@ namespace DBreakout
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+
         Sprite background;
         Sprite brickAreaBackground;
         Sprite playAreaBackground;
@@ -82,9 +83,10 @@ namespace DBreakout
             paddle.position = new Vector2(playArea.X + PADDLE_X, (playArea.Y + playArea.Height / 2) - (paddle.size.Height / 2));
             ball.position = new Vector2(paddle.position.X + ball.size.Width +paddle.size.Width, paddle.position.Y + (paddle.size.Height / 2));
 
-                        for (int i = 0; i < currentLevel.numBricks; i++)
+            for (int i = 0; i < currentLevel.numBricks; i++)
             {
                 currentLevel.bricks[i].LoadContent(this.Content, "Brick2");
+
             }
 
 
@@ -98,6 +100,7 @@ namespace DBreakout
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
             playArea.Width = GraphicsDevice.Viewport.Width;
             playArea.Height = GraphicsDevice.Viewport.Height;
 
@@ -107,7 +110,7 @@ namespace DBreakout
             paddle.LoadContent(this.Content, "Paddle");
             ball.LoadContent(this.Content, "Ball3");
 
-            currentLevel = new Level(brickArea, 1); // level 1
+            currentLevel = new Level(brickArea, 2332); // level 1
             for (int i = 0; i < currentLevel.numBricks; i++)
             {
                 currentLevel.bricks[i].LoadContent(this.Content, "Brick2");
@@ -137,24 +140,45 @@ namespace DBreakout
             // TODO: Add your update logic here
             paddle.Update(gameTime);
             ball.Update(gameTime);
+            if (ball.getState() == Ball.State.held)
+                ball.UpdateWhileHeld(gameTime, paddle.speed, paddle.direction, paddle.position.X + paddle.size.Width);
             //ball.RotateBallToFaceAPoint(new Vector2(400, 300));
             ball.RotateBallToFaceAPoint(paddle.center);
             currentLevel.Update(gameTime);
 
             int hitBrick = -1;
+            int brokenBricks = 0;
             ball.isColliding = false;
             ball.collidingWith = null;
             ///////////////////////////////
             // Collision: BALL HIT BRICK //
             for (int i = 0; i < currentLevel.numBricks; i++)
             {
-                currentLevel.bricks[i].Update(gameTime);
-                if (ball.CheckBrickCollision(currentLevel.bricks[i].position, currentLevel.bricks[i].size))
+                //ignore broken bricks
+                if (currentLevel.bricks[i].getState() != Brick.State.broken)
                 {
-                    //detremine new ball direction and dock ball to collided object
-                    ball.isColliding = true;
-                    ball.collidingWith = (Brick) currentLevel.bricks[i];
-                    hitBrick = i;
+                    currentLevel.bricks[i].Update(gameTime);
+                    if (ball.CheckBrickCollision(currentLevel.bricks[i].position, currentLevel.bricks[i].size))
+                    {
+                        //detremine new ball direction and dock ball to collided object
+                        ball.isColliding = true;
+                        ball.collidingWith = (Brick)currentLevel.bricks[i];
+                        if (currentLevel.bricks[i].getState() != Brick.State.invincible)
+                        {
+                            if (currentLevel.bricks[i].damage++ >= currentLevel.bricks[i].maxDamage)
+                            {
+                                currentLevel.bricks[i].setState(Brick.State.broken);
+                            }
+                        }
+                        hitBrick = i;
+                    }
+                }
+                else
+                    brokenBricks++;
+                if (brokenBricks >= currentLevel.bricks.Length)
+                {
+                    //winning conditions
+                    ball.setState(Ball.State.paused);
                 }
             }
 
@@ -166,6 +190,10 @@ namespace DBreakout
             {
                 ball.isColliding = true;
                 ball.collidingWith = (Paddle)paddle;
+                //TODO:  why doesn't this work ball.CollisionDetermineNewDirection(paddle.position, paddle.size);
+                ball.setState(Ball.State.held);
+                ball.direction.X = 1;
+
 
                 //play sound
                 //sticky powerup?
@@ -193,7 +221,10 @@ namespace DBreakout
                 paddle.Draw(this.spriteBatch);
                 ball.Draw(this.spriteBatch, ball.rotationVal);
                 for (int i = 0; i < currentLevel.numBricks; i++)
-                    currentLevel.bricks[i].Draw(this.spriteBatch, currentLevel.bricks[i].color);
+                {
+                    if (currentLevel.bricks[i].getState()!=Brick.State.broken)
+                        currentLevel.bricks[i].Draw(this.spriteBatch, currentLevel.bricks[i].color,"asd");
+                }
             }
             spriteBatch.End();
 

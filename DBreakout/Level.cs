@@ -19,6 +19,8 @@ namespace DBreakout
         //public Rectangle playArea;
         public Brick[] bricks;
         public int numBricks;
+        public int breakableBricks;
+        public int brokenBricks;
         Color[] colors = { Color.Wheat, Color.Chartreuse, Color.Beige, Color.DarkSalmon, Color.Gainsboro };
         public Rectangle brickArea;
 
@@ -27,6 +29,8 @@ namespace DBreakout
         {
             brickArea = new Rectangle(100,100,400,400);
             numBricks = 5;
+            breakableBricks = 5;
+            brokenBricks = 0;
             bricks = new Brick[numBricks];
 
             for (int i = 0; i < numBricks; i++)
@@ -64,11 +68,13 @@ namespace DBreakout
         private void buildLevel0()
         {
             numBricks = 1;
-            bricks = new Brick[numBricks];
+            breakableBricks = 1;
+            brokenBricks = 0;
+      bricks = new Brick[numBricks];
             for (int i = 0; i < numBricks; i++)
             {
                 Random rnd = new Random();
-                int r = rnd.Next(1, 3);
+                int r = rnd.Next(1, 6);
                 bricks[i] = new Brick(r, colors[i]);
                 bricks[i].position = new Vector2(brickArea.Left + (brickArea.Width / 2), brickArea.Top + (brickArea.Height / 2));
             }
@@ -79,6 +85,8 @@ namespace DBreakout
         private void buildLevel1()
         {
             numBricks = 5;
+            breakableBricks = 5;
+            brokenBricks = 0;
             bricks = new Brick[numBricks];
             for (int i = 0; i < numBricks; i++)
             {
@@ -96,6 +104,8 @@ namespace DBreakout
             int rows = 5;
             int cols = 5;
             numBricks = rows * cols;
+            breakableBricks = rows * cols;
+            brokenBricks = 0;
             int c = 0;
             bricks = new Brick[numBricks];
             for (int j = 0; j < cols; j++)
@@ -116,7 +126,8 @@ namespace DBreakout
         {
             for (int i = 0; i < numBricks; i++)
             {
-                bricks[i].Update(gameTime);
+                if (bricks[i].getState()!=Brick.State.broken)
+                    bricks[i].Update(gameTime);
             }
         }
 

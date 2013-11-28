@@ -30,8 +30,8 @@ namespace DBreakout
         }
         State currentState = State.moving;
 
-        Vector2 direction = Vector2.Zero;
-        Vector2 speed = Vector2.Zero;
+        public Vector2 direction = Vector2.Zero;
+        public Vector2 speed = Vector2.Zero;
 
         KeyboardState prevKeyboardState;
 
@@ -65,6 +65,7 @@ namespace DBreakout
 
         public void UpdateMovement(KeyboardState kboard)
         {
+
 
             if (currentState == State.moving)
             {

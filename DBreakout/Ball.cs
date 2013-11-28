@@ -25,17 +25,17 @@ namespace DBreakout
         public bool isColliding;
         public object collidingWith;
         public float rotationVal;
+        protected const int maxHeldTime = 100; //just over a second?
+        protected int heldTime;
 
-        enum State
+        public enum State
         {
             moving, paused, held
         }
-        State currentState = State.moving;
+        State currentState = State.held;
 
         public Vector2 direction = Vector2.Zero;
         public Vector2 speed = Vector2.Zero;
-
-        KeyboardState prevKeyboardState;
 
 
         public Ball()
@@ -45,6 +45,7 @@ namespace DBreakout
             rotationVal = 0f;
             isColliding = false;
             collidingWith = null;
+            heldTime = 0;
         }
 
 
@@ -57,16 +58,30 @@ namespace DBreakout
 
         public void Update(GameTime theGameTime)
         {
-            KeyboardState aCurrentKeyboardState = Keyboard.GetState();
-
-            UpdateMovement();
-            CheckWallCollision();
-
-            prevKeyboardState = aCurrentKeyboardState;
-
-            base.Update(theGameTime, speed, direction);
+            if (currentState==State.moving)
+            {
+                UpdateMovement();
+                CheckWallCollision();
+                base.Update(theGameTime, speed, direction);
+            }
+            else if (currentState==State.held)
+            {
+                if (heldTime == 0)
+                    UpdateMovement();
+                if (heldTime++ >= maxHeldTime)
+                {
+                    heldTime = 0;
+                    currentState = State.moving;
+                }
+            }
         }
+
         
+        public void UpdateWhileHeld(GameTime theGameTime, Vector2 pdlSpeed, Vector2 pdlDirection, float pdlRightSide)
+        {
+            position.X = pdlRightSide;  // +1f
+            base.Update(theGameTime, pdlSpeed, pdlDirection);
+        }
 
         public void UpdateMovement()
         {
@@ -150,7 +165,7 @@ namespace DBreakout
                         {
                             direction.Y = ballNewDir.Y;
                             if (ballNewDir.Y < 0)
-                                position.Y = tmpPdl.position.Y - size.Width;
+                                position.Y = tmpPdl.position.Y - size.Height;
                             else if (ballNewDir.Y > 0)
                                 position.Y = tmpPdl.position.Y + tmpPdl.size.Height;
                         }
@@ -296,6 +311,21 @@ namespace DBreakout
         {
             playArea = area;
         }
+
+
+        public State getState()
+        {
+            return currentState;
+        }
+
+
+        public void setState(State newState)
+        {
+            currentState = newState;
+        }
+
+
+
 
 
     }
