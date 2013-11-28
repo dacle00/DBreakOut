@@ -16,12 +16,15 @@ namespace DBreakout
         const string BALL_NAME = "Ball";
         const int START_POS_X = 125;
         const int START_POS_Y = 200;
-        const int BASE_SPEED = 900;
+        const int BASE_SPEED = 100;
         const int MOVE_UP = -1;
         const int MOVE_DOWN = 1;
         const int MOVE_LEFT = -1;
         const int MOVE_RIGHT = 1;
         Rectangle playArea;
+        public bool isColliding;
+        public object collidingWith;
+        public float rotationVal;
 
         enum State
         {
@@ -37,8 +40,11 @@ namespace DBreakout
 
         public Ball()
         {
-            speed = new Vector2(300, 100);
+            speed = new Vector2(300, 200);
             direction = new Vector2(MOVE_RIGHT, MOVE_DOWN);
+            rotationVal = 0f;
+            isColliding = false;
+            collidingWith = null;
         }
 
 
@@ -79,7 +85,92 @@ namespace DBreakout
             if (currentState == State.moving)
             {
 
+                Vector2 ballNewDir = Vector2.Zero;
+                Brick tmpBrk = new Brick(0, Color.White);
+                Paddle tmpPdl = new Paddle();
+
+                if (isColliding)
+                {
+                    ////////////////////////////////
+                    // Collision: BALL HIT BRICK //
+                    if (collidingWith.GetType() == tmpBrk.GetType())
+                    {
+                        tmpBrk = (Brick)collidingWith;
+                        ballNewDir = CollisionDetermineNewDirection(tmpBrk.position, tmpBrk.size);  //sets one non-zero field in ballNewDir
+                        if (ballNewDir.X != 0)
+                        {
+                            direction.X = ballNewDir.X;
+                            if (ballNewDir.X < 0)
+                                position.X = tmpBrk.position.X - size.Width;
+                            else if (ballNewDir.X > 0)
+                                position.X = tmpBrk.position.X + tmpBrk.size.Width;
+                            else
+                                speed = Vector2.Zero; //this should never happen!
+                        }
+                        else if (ballNewDir.Y != 0)
+                        {
+                            direction.Y = ballNewDir.Y;
+                            if (ballNewDir.Y < 0)
+                                position.Y = tmpBrk.position.Y - size.Width;
+                            else if (ballNewDir.Y > 0)
+                                position.Y = tmpBrk.position.Y + tmpBrk.size.Height;
+                            else
+                                speed = Vector2.Zero; //this should never happen!
+                        }
+                    }
+
+                    ////////////////////////////////
+                    // Collision: BALL HIT PADDLE //
+                    else if (collidingWith.GetType() == tmpPdl.GetType())
+                    {
+                        tmpPdl = (Paddle)collidingWith;
+
+                        //detremine new ball direction and dock ball to collided object
+                        ballNewDir = CollisionDetermineNewDirection(tmpPdl.position, tmpPdl.size);  //sets one non-zero field in ballNewDir
+                        if (ballNewDir.X != 0)
+                        {
+                            direction.X = ballNewDir.X;
+                            if (ballNewDir.X < 0)
+                                position.X = tmpPdl.position.X - size.Width;
+                            else if (ballNewDir.X > 0)
+                                position.X = tmpPdl.position.X + tmpPdl.size.Width;
+                            //TODO:   set ball vert speed change here per dist to paddle center
+                            float pMidY = tmpPdl.position.Y + (tmpPdl.size.Height / 2);
+                            float bMidY = position.Y + (size.Height / 2);
+                            float deltaY = bMidY - pMidY;
+                            float itFeltRightModifier = 5.25f;
+                            speed.Y = Math.Abs(deltaY * itFeltRightModifier);
+                            if (deltaY < 0)
+                                direction.Y = MOVE_UP;
+                            else
+                                direction.Y = MOVE_DOWN;
+                            //direction.Y = something or other MOVE UP or MOVE DOWN
+                        }
+                        else if (ballNewDir.Y != 0)
+                        {
+                            direction.Y = ballNewDir.Y;
+                            if (ballNewDir.Y < 0)
+                                position.Y = tmpPdl.position.Y - size.Width;
+                            else if (ballNewDir.Y > 0)
+                                position.Y = tmpPdl.position.Y + tmpPdl.size.Height;
+                        }
+
+                    }
+                }
             }
+        }
+
+
+        //used to rotate ball to face paddle center, typically
+        public void RotateBallToFaceAPoint(Vector2 aPoint)
+        {
+            //float aCircle = MathHelper.Pi * 2;
+            float rise = (position.Y + (size.Height / 2)) - aPoint.Y;
+            float run = (position.X + (size.Width / 2)) - aPoint.X;
+            float slope = rise / Math.Abs(run);
+            //if (slope>-45 && slope<=45)
+                rotationVal = slope % MathHelper.Pi * 2;
+
         }
 
 
@@ -91,92 +182,38 @@ namespace DBreakout
             {
                 //collision with left side of play area
                 position.X = playArea.X;
-                speed.X = Math.Abs(speed.X); //bounce RIGHT!
+                direction.X = MOVE_RIGHT;
             }
 
             if (position.X >= (playArea.Width - size.Width))
             {
                 //collision with right side of play area
                 position.X = playArea.Width - size.Width;
-                speed.X = -Math.Abs(speed.X); //bounce LEFT!
+                direction.X = MOVE_LEFT;
             }
 
             if (position.Y <= playArea.Y)
             {
                 //collision with top of play area
                 position.Y = playArea.Y;
-                speed.Y = Math.Abs(speed.Y); //bounce DOWN!
+                direction.Y = MOVE_DOWN;
             }
 
             if (position.Y >= (playArea.Height - size.Height))
             {
                 //collision with bottom of play area
                 position.Y = playArea.Height - size.Height;
-                speed.Y = -Math.Abs(speed.Y); //bounce UP!
+                direction.Y = MOVE_UP;
             }
         }
 
 
         public bool CheckPaddleCollision(Rectangle paddleLocation)
         {
-            bool isCollision = false;
             Rectangle ballLocation = new Rectangle((int)position.X, (int)position.Y, spriteTexture.Width, spriteTexture.Height);
             Rectangle ballLocation_prev = new Rectangle((int)position_prev.X, (int)position_prev.Y, spriteTexture.Width, spriteTexture.Height);
-            if (paddleLocation.Intersects(ballLocation) && !paddleLocation.Intersects(ballLocation_prev))
-            {
-                isCollision = true;
-                int speedbuffer = 6; // extra pixels of padding when doing collision
 
-                //if ball is touching top of paddle
-                // and if ball is moving downwards
-                // and if ball was not more than half its width into paddle
-                if (ballLocation.Y + ballLocation.Height + speedbuffer > paddleLocation.Y 
-                         && direction.Y==MOVE_DOWN
-                         && ballLocation.X < paddleLocation.X + paddleLocation.Width -ballLocation.Width/2)
-                {
-                    position.Y = paddleLocation.Y - size.Y;
-                    speed.Y = -Math.Abs(speed.Y); //bounce UP!
-                }
-
-                    //TODO: dterming 45degree angle collsions updownleftright
-                    // TODO: copy logic for the above, to the rest of the sides.
-
-                //if ball is touching bottom of paddle, bounce ball down
-                else if (ballLocation.Y > (paddleLocation.Y + paddleLocation.Height)
-                         && direction.Y == MOVE_UP)
-                {
-                    position.Y = paddleLocation.Y + paddleLocation.Height;
-                    speed.Y = Math.Abs(speed.Y); //bounce DOWN!
-                }
-
-                //if ball is touching right of paddle, bounce ball right
-                else if (ballLocation.X - speedbuffer < (paddleLocation.X + paddleLocation.Width))
-                {
-                    position.X = paddleLocation.X + paddleLocation.Width;
-                    speed.X = Math.Abs(speed.X); //bounce RIGHT!
-                }
-
-                //if ball is touching left of paddle, bounce ball left
-                else
-                {
-                    position.X = paddleLocation.X - size.X;
-                    speed.X = -Math.Abs(speed.X); // bounce LEFT  //how would this ever happen??
-                }
-
-
-
-                /*OLD COLLISION - 
-                //calc new ball trajectory based upon dist-from-paddle-center
-                float pMidY = paddleLocation.Y + (paddleLocation.Height / 2);
-                float bMidY = ballLocation.Y + (ballLocation.Height / 2);
-                float deltaY = bMidY - pMidY;
-                float itFeltRightModifier = 4.5f;
-                speed.Y = deltaY * itFeltRightModifier;
-                speed.X *= -1;
-                 * */
-            }
-
-            return isCollision;
+            return paddleLocation.Intersects(ballLocation);
         }
 
         public bool CheckBrickCollision(Vector2 brickPos, Rectangle brickSize)

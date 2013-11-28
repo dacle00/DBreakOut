@@ -53,10 +53,25 @@ namespace DBreakout
                     buildLevel2();
                     break;
                 default:
-                    buildLevel1();
+                    buildLevel0();
                     break;
             }
 
+        }
+
+
+        // one brick in the ceter.
+        private void buildLevel0()
+        {
+            numBricks = 1;
+            bricks = new Brick[numBricks];
+            for (int i = 0; i < numBricks; i++)
+            {
+                Random rnd = new Random();
+                int r = rnd.Next(1, 3);
+                bricks[i] = new Brick(r, colors[i]);
+                bricks[i].position = new Vector2(brickArea.Left + (brickArea.Width / 2), brickArea.Top + (brickArea.Height / 2));
+            }
         }
 
 
@@ -74,17 +89,24 @@ namespace DBreakout
             }
         }
 
-        // one brick in the ceter.
+        // a diagonal block of bricks, top left to bottom right
+        //TODO: why is brickArea still ZEROs for this level, but not for other levels?
         private void buildLevel2()
         {
-            numBricks = 1;
+            int rows = 5;
+            int cols = 5;
+            numBricks = rows * cols;
+            int c = 0;
             bricks = new Brick[numBricks];
-            for (int i = 0; i < numBricks; i++)
+            for (int j = 0; j < cols; j++)
             {
-                Random rnd = new Random();
-                int r = rnd.Next(1, 3);
-                bricks[i] = new Brick(r, colors[i]);
-                bricks[i].position = new Vector2(brickArea.X + brickArea.Width / 2 - (bricks[i].size.Width / 2), brickArea.Y + (brickArea.Height / 2) - (bricks[i].size.Height / 2));
+                for (int i = 0; i < rows; i++)
+                {
+                    Random rnd = new Random();
+                    int r = rnd.Next(1, 3);
+                    bricks[c] = new Brick(r, colors[i]);
+                    bricks[c++].position = new Vector2(brickArea.X + brickArea.Width - (i * bricks[i].size.Width) + (i * bricks[i].size.Width), brickArea.Y + (j * bricks[i].size.Height));
+                }
             }
         }
 

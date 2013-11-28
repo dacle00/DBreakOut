@@ -76,10 +76,19 @@ namespace DBreakout
 
         
         //Draw the sprite to the screen
-        public void Draw(SpriteBatch theSpriteBatch)
+        public void Draw(SpriteBatch theSpriteBatch, float slope = 0f)
         {
+
+            Vector2 origin = Vector2.Zero;
+            // optional slope is used by rotating ball
+            if (slope != 0)
+            {
+                Rectangle objLoc = new Rectangle(0, 0, size.Width, size.Height);
+                //origin = new Vector2(objLoc.Center.X, objLoc.Center.Y);
+                origin = new Vector2(size.Width / 2, size.Height / 2);
+            }
             Rectangle tmpRec = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
-            theSpriteBatch.Draw(spriteTexture, position, tmpRec, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
+            theSpriteBatch.Draw(spriteTexture, position+origin, tmpRec, Color.White, slope, origin, scale, SpriteEffects.None, 0);
         }
 
 
@@ -90,7 +99,7 @@ namespace DBreakout
             theSpriteBatch.Draw(spriteTexture, position, tmpRec, Color.White, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
         }
 
-        // overloaded the draw method, to scale a BG image to be the size of specified rectangle
+        // overloaded the draw method, to colorize sprites
         public void Draw(SpriteBatch theSpriteBatch, Color c)
         {
             Rectangle tmpRec = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);

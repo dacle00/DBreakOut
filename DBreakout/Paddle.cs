@@ -22,6 +22,7 @@ namespace DBreakout
         const int MOVE_LEFT = -1;
         const int MOVE_RIGHT = 1;
         Rectangle playArea;
+        public Vector2 center;
 
         enum State
         {
@@ -43,6 +44,7 @@ namespace DBreakout
         public void LoadContent(ContentManager theContentManager)
         {
             position = new Vector2(START_POS_X, START_POS_Y);
+            center = new Vector2(position.X + (size.Width / 2), position.Y + (size.Height / 2));
             base.LoadContent(theContentManager, PADDLE_NAME);
         }
 
@@ -56,6 +58,8 @@ namespace DBreakout
             prevKeyboardState = aCurrentKeyboardState;
 
             base.Update(theGameTime, speed, direction);
+
+            center.Y = position.Y + (size.Height / 2); // after paddle moved.
         }
 
 

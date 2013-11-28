@@ -82,6 +82,12 @@ namespace DBreakout
             paddle.position = new Vector2(playArea.X + PADDLE_X, (playArea.Y + playArea.Height / 2) - (paddle.size.Height / 2));
             ball.position = new Vector2(paddle.position.X + ball.size.Width +paddle.size.Width, paddle.position.Y + (paddle.size.Height / 2));
 
+                        for (int i = 0; i < currentLevel.numBricks; i++)
+            {
+                currentLevel.bricks[i].LoadContent(this.Content, "Brick2");
+            }
+
+
         }
 
         /// <summary>``````````````````````````
@@ -99,12 +105,12 @@ namespace DBreakout
             playAreaBackground.LoadContent(this.Content, "MetalBG");
             brickAreaBackground.LoadContent(this.Content, "SolidBrownBG");
             paddle.LoadContent(this.Content, "Paddle");
-            ball.LoadContent(this.Content, "Ball2");
+            ball.LoadContent(this.Content, "Ball3");
 
             currentLevel = new Level(brickArea, 1); // level 1
             for (int i = 0; i < currentLevel.numBricks; i++)
             {
-                currentLevel.bricks[i].LoadContent(this.Content, "Brick");
+                currentLevel.bricks[i].LoadContent(this.Content, "Brick2");
             }
         }
 
@@ -131,57 +137,44 @@ namespace DBreakout
             // TODO: Add your update logic here
             paddle.Update(gameTime);
             ball.Update(gameTime);
+            //ball.RotateBallToFaceAPoint(new Vector2(400, 300));
+            ball.RotateBallToFaceAPoint(paddle.center);
             currentLevel.Update(gameTime);
 
-            //EACH 
+            int hitBrick = -1;
+            ball.isColliding = false;
+            ball.collidingWith = null;
+            ///////////////////////////////
+            // Collision: BALL HIT BRICK //
             for (int i = 0; i < currentLevel.numBricks; i++)
             {
                 currentLevel.bricks[i].Update(gameTime);
-
-                ///////////////////////////////
-                // Collision: BALL HIT BRICK //
-                bool brickHit = ball.CheckBrickCollision(currentLevel.bricks[i].position,currentLevel.bricks[i].size);
-                if (brickHit)
+                if (ball.CheckBrickCollision(currentLevel.bricks[i].position, currentLevel.bricks[i].size))
                 {
                     //detremine new ball direction and dock ball to collided object
-                    Vector2 ballNewDir = ball.CollisionDetermineNewDirection(currentLevel.bricks[i].position, currentLevel.bricks[i].size);  //sets one non-zero field in ballNewDir
-                    if (ballNewDir.X != 0)
-                    {
-                        ball.direction.X = ballNewDir.X;
-                        if (ballNewDir.X < 0)
-                            ball.position.X = currentLevel.bricks[i].position.X - ball.size.Width;
-                        else // if (ballNewDir.X > 0)
-                            ball.position.X = currentLevel.bricks[i].position.X + currentLevel.bricks[i].size.Width;
-                    }
-                    else if (ballNewDir.Y != 0)
-                    {
-                        ball.direction.Y = ballNewDir.Y;
-                        if (ballNewDir.Y < 0)
-                            ball.position.Y = currentLevel.bricks[i].position.Y - ball.size.Width;
-                        else // if (ballNewDir.Y > 0)
-                            ball.position.Y = currentLevel.bricks[i].position.Y + currentLevel.bricks[i].size.Height;
-                    }
-                    else
-                        ball.speed = Vector2.Zero; //this should never happen!
-                    
-                    //TODO: play sound
-                    //TOOD: sticky powerup?
+                    ball.isColliding = true;
+                    ball.collidingWith = (Brick) currentLevel.bricks[i];
+                    hitBrick = i;
                 }
             }
 
+
+
             ////////////////////////////////
             // Collision: BALL HIT PADDLE //
-            bool paddleHit = ball.CheckPaddleCollision(new Rectangle((int)paddle.position.X, (int)paddle.position.Y, paddle.size.Width, paddle.size.Height));
-            if(paddleHit)
+            if (ball.CheckPaddleCollision(new Rectangle((int)paddle.position.X, (int)paddle.position.Y, paddle.size.Width, paddle.size.Height)))
             {
-                //TODO:  bring game logic from the CheckCollision method, to here.
+                ball.isColliding = true;
+                ball.collidingWith = (Paddle)paddle;
+
                 //play sound
                 //sticky powerup?
                 //accel ball?
+
             }
 
-
             base.Update(gameTime);
+
         }
 
         /// <summary>
@@ -198,7 +191,7 @@ namespace DBreakout
                 playAreaBackground.Draw(this.spriteBatch, playArea);
                 //brickAreaBackground.Draw(this.spriteBatch, currentLevel.brickArea);
                 paddle.Draw(this.spriteBatch);
-                ball.Draw(this.spriteBatch);
+                ball.Draw(this.spriteBatch, ball.rotationVal);
                 for (int i = 0; i < currentLevel.numBricks; i++)
                     currentLevel.bricks[i].Draw(this.spriteBatch, currentLevel.bricks[i].color);
             }
