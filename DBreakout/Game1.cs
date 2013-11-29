@@ -110,7 +110,7 @@ namespace DBreakout
             paddle.LoadContent(this.Content, "Paddle");
             ball.LoadContent(this.Content, "Ball3");
 
-            currentLevel = new Level(brickArea, 2332); // level 1
+            currentLevel = new Level(brickArea, 1); // level 1
             for (int i = 0; i < currentLevel.numBricks; i++)
             {
                 currentLevel.bricks[i].LoadContent(this.Content, "Brick2");
@@ -157,20 +157,17 @@ namespace DBreakout
                 //ignore broken bricks
                 if (currentLevel.bricks[i].getState() != Brick.State.broken)
                 {
-                    currentLevel.bricks[i].Update(gameTime);
+                    //currentLevel.bricks[i].Update(gameTime); // TODO: is this needed? bricks normally don't change 
                     if (ball.CheckBrickCollision(currentLevel.bricks[i].position, currentLevel.bricks[i].size))
                     {
-                        //detremine new ball direction and dock ball to collided object
+                        hitBrick = i;
                         ball.isColliding = true;
                         ball.collidingWith = (Brick)currentLevel.bricks[i];
+
+                        //damage the collided brick
                         if (currentLevel.bricks[i].getState() != Brick.State.invincible)
-                        {
                             if (currentLevel.bricks[i].damage++ >= currentLevel.bricks[i].maxDamage)
-                            {
                                 currentLevel.bricks[i].setState(Brick.State.broken);
-                            }
-                        }
-                        hitBrick = i;
                     }
                 }
                 else
@@ -179,6 +176,9 @@ namespace DBreakout
                 {
                     //winning conditions
                     ball.setState(Ball.State.paused);
+                    paddle.setState(Paddle.State.paused);
+
+                    //TODO: advance level? reset? animation?
                 }
             }
 
@@ -190,9 +190,7 @@ namespace DBreakout
             {
                 ball.isColliding = true;
                 ball.collidingWith = (Paddle)paddle;
-                //TODO:  why doesn't this work ball.CollisionDetermineNewDirection(paddle.position, paddle.size);
-                ball.setState(Ball.State.held);
-                ball.direction.X = 1;
+                //ball.setState(Ball.State.held);
 
 
                 //play sound

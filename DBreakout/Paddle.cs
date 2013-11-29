@@ -24,7 +24,7 @@ namespace DBreakout
         Rectangle playArea;
         public Vector2 center;
 
-        enum State
+        public enum State
         {
             moving, slowed, paused, held, lengthened, shortened
         }
@@ -103,6 +103,18 @@ namespace DBreakout
         public void definePlayArea(Rectangle area)
         {
             playArea = area;
+        }
+
+
+        public State getState()
+        {
+            return currentState;
+        }
+
+
+        public void setState(State newState)
+        {
+            currentState = newState;
         }
 
 
