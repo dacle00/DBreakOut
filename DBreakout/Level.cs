@@ -93,7 +93,7 @@ namespace DBreakout
                 Random rnd = new Random();
                 int r = rnd.Next(1, 3);
                 bricks[i] = new Brick(r, colors[i]);
-                bricks[i].position = new Vector2(brickArea.X + brickArea.Width - (numBricks * bricks[i].size.Width) + (i * bricks[i].size.Width), brickArea.Y + (i * bricks[i].size.Height));
+                bricks[i].position = new Vector2(brickArea.Right - brickArea.Width - (numBricks * bricks[i].size.Width) + (i * bricks[i].size.Width), brickArea.Y + (i * bricks[i].size.Height));
             }
         }
 
@@ -107,15 +107,21 @@ namespace DBreakout
             breakableBricks = rows * cols;
             brokenBricks = 0;
             int c = 0;
+            int w = 40;
+            int h = 80;
             bricks = new Brick[numBricks];
             for (int j = 0; j < cols; j++)
             {
                 for (int i = 0; i < rows; i++)
                 {
+
                     Random rnd = new Random();
                     int r = rnd.Next(1, 3);
+
                     bricks[c] = new Brick(r, colors[i]);
-                    bricks[c++].position = new Vector2(brickArea.X + brickArea.Width - (i * bricks[i].size.Width) + (i * bricks[i].size.Width), brickArea.Y + (j * bricks[i].size.Height));
+                    bricks[c].position = new Vector2(brickArea.Right/4*3-(i * w), brickArea.Top+(j * h));
+                    c++;
+                    //bricks[c++].position = new Vector2(brickArea.X + brickArea.Width - (i * bricks[i].size.Width) + (i * bricks[i].size.Width), brickArea.Y + (j * bricks[i].size.Height));
                 }
             }
         }

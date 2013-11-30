@@ -109,6 +109,7 @@
   <ItemGroup>
     <Compile Include="Ball.cs" />
     <Compile Include="Brick.cs" />
+    <Compile Include="GameKbdInput.cs" />
     <Compile Include="Level.cs" />
     <Compile Include="Paddle.cs" />
     <Compile Include="Sprite.cs" />

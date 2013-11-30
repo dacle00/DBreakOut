@@ -19,7 +19,7 @@ namespace DBreakout
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
+        GameKbdInput GameInput;
 
         Sprite background;
         Sprite brickAreaBackground;
@@ -42,6 +42,7 @@ namespace DBreakout
         const int BRICK_BUFFER_LEFT = 200;
         const int BRICK_BUFFER_RIGHT = 40;
         Level currentLevel;
+        bool showDebug;
         
 
         public Game1()
@@ -65,14 +66,14 @@ namespace DBreakout
             paddle = new Paddle();
             ball = new Ball();
             currentLevel = new Level();
+            showDebug = false;
+            GameInput = new GameKbdInput();
 
             base.Initialize();
 
-            playArea = new Rectangle(BUFFER_LEFT, BUFFER_TOP, graphics.PreferredBackBufferWidth - (BUFFER_LEFT + BUFFER_RIGHT), graphics.PreferredBackBufferHeight - (BUFFER_TOP + BUFFER_BOTTOM));
-            brickArea = new Rectangle(playArea.X + BRICK_BUFFER_LEFT, playArea.Y + BRICK_BUFFER_TOP, playArea.Width - (BRICK_BUFFER_LEFT + BRICK_BUFFER_RIGHT), playArea.Height - (BRICK_BUFFER_TOP + BRICK_BUFFER_BOTTOM));
             paddle.definePlayArea(playArea);
             ball.definePlayArea(playArea);
-            currentLevel.defineBrickArea(brickArea);
+            //currentLevel.defineBrickArea(brickArea);
 
             background.position = Vector2.Zero;
             playAreaBackground.position = new Vector2(playArea.X, playArea.Y);
@@ -82,12 +83,6 @@ namespace DBreakout
 
             paddle.position = new Vector2(playArea.X + PADDLE_X, (playArea.Y + playArea.Height / 2) - (paddle.size.Height / 2));
             ball.position = new Vector2(paddle.position.X + ball.size.Width +paddle.size.Width, paddle.position.Y + (paddle.size.Height / 2));
-
-            for (int i = 0; i < currentLevel.numBricks; i++)
-            {
-                currentLevel.bricks[i].LoadContent(this.Content, "Brick2");
-
-            }
 
 
         }
@@ -103,6 +98,8 @@ namespace DBreakout
 
             playArea.Width = GraphicsDevice.Viewport.Width;
             playArea.Height = GraphicsDevice.Viewport.Height;
+            playArea = new Rectangle(BUFFER_LEFT, BUFFER_TOP, graphics.PreferredBackBufferWidth - (BUFFER_LEFT + BUFFER_RIGHT), graphics.PreferredBackBufferHeight - (BUFFER_TOP + BUFFER_BOTTOM));
+            brickArea = new Rectangle(playArea.X + BRICK_BUFFER_LEFT, playArea.Y + BRICK_BUFFER_TOP, playArea.Width - (BRICK_BUFFER_LEFT + BRICK_BUFFER_RIGHT), playArea.Height - (BRICK_BUFFER_TOP + BRICK_BUFFER_BOTTOM));
 
             background.LoadContent(this.Content, "SolidTanBG");
             playAreaBackground.LoadContent(this.Content, "MetalBG");
@@ -110,7 +107,7 @@ namespace DBreakout
             paddle.LoadContent(this.Content, "Paddle");
             ball.LoadContent(this.Content, "Ball3");
 
-            currentLevel = new Level(brickArea, 1); // level 1
+            currentLevel = new Level(brickArea, 2); // level 2
             for (int i = 0; i < currentLevel.numBricks; i++)
             {
                 currentLevel.bricks[i].LoadContent(this.Content, "Brick2");
@@ -133,9 +130,17 @@ namespace DBreakout
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
+            /*            // Allows the game to exit
+                        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+                          this.Exit();
+            */
+            String todo = GameInput.Update(gameTime);
+            if (todo == "toggle debug")
+                showDebug = !showDebug;
+            else if (todo=="restart level" || todo=="restart game")
+            {
+                //reinitialize
+            }
 
             // TODO: Add your update logic here
             paddle.Update(gameTime);
@@ -216,12 +221,24 @@ namespace DBreakout
                 background.Draw(this.spriteBatch);
                 playAreaBackground.Draw(this.spriteBatch, playArea);
                 //brickAreaBackground.Draw(this.spriteBatch, currentLevel.brickArea);
-                paddle.Draw(this.spriteBatch);
-                ball.Draw(this.spriteBatch, ball.rotationVal);
+                if (showDebug)
+                {
+                    paddle.Draw(this.spriteBatch, 0f, "paddle");
+                    ball.Draw(this.spriteBatch, ball.rotationVal, "ball");
+                }
+                else
+                {
+                    ball.Draw(this.spriteBatch, ball.rotationVal);
+                    paddle.Draw(this.spriteBatch);
+                }
+
                 for (int i = 0; i < currentLevel.numBricks; i++)
                 {
-                    if (currentLevel.bricks[i].getState()!=Brick.State.broken)
-                        currentLevel.bricks[i].Draw(this.spriteBatch, currentLevel.bricks[i].color,"asd");
+                    if (currentLevel.bricks[i].getState() != Brick.State.broken)
+                        if (showDebug)
+                            currentLevel.bricks[i].Draw(this.spriteBatch, currentLevel.bricks[i].color, (currentLevel.bricks[i].maxDamage - currentLevel.bricks[i].damage + 1).ToString());
+                        else
+                            currentLevel.bricks[i].Draw(this.spriteBatch, currentLevel.bricks[i].color);
                 }
             }
             spriteBatch.End();

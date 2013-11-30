@@ -80,7 +80,7 @@ namespace DBreakout
         {
             position_prev = position;
             position += theDirection * theSpeed * (float)theGameTime.ElapsedGameTime.TotalSeconds;
-            fontPosition = new Vector2(position.X, position.Y - 30);
+            fontPosition = position;
         }
 
         
@@ -101,7 +101,7 @@ namespace DBreakout
 
             if (strDebug != null)
             {
-                theSpriteBatch.DrawString(debugFont, strDebug, position + fontPosition, debugColor);
+                theSpriteBatch.DrawString(debugFont, strDebug, new Vector2(position.X, position.Y), debugColor);
             }
 
         }
@@ -115,7 +115,7 @@ namespace DBreakout
 
             if (strDebug != null)
             {
-                theSpriteBatch.DrawString(debugFont, strDebug, position + fontPosition, debugColor);
+                theSpriteBatch.DrawString(debugFont, strDebug, new Vector2(position.X, position.Y), debugColor);
             }
         }
 
@@ -125,9 +125,9 @@ namespace DBreakout
             Rectangle tmpRec = new Rectangle(0, 0, spriteTexture.Width, spriteTexture.Height);
             theSpriteBatch.Draw(spriteTexture, position, tmpRec, c, 0f, Vector2.Zero, scale, SpriteEffects.None, 0);
 
-            if (strDebug != null)
+            if (strDebug != "")
             {
-                theSpriteBatch.DrawString(debugFont, strDebug, position + fontPosition, debugColor);
+                theSpriteBatch.DrawString(debugFont, strDebug, new Vector2(position.X, position.Y), debugColor);
             }
         }
 
