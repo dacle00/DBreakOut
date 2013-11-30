@@ -32,7 +32,8 @@ namespace DBreakout
         {
             moving, paused, held
         }
-        State currentState = State.held;
+        public State currentState = State.held;
+        public State prePauseState;
 
         public Vector2 direction = Vector2.Zero;
         public Vector2 speed = Vector2.Zero;
@@ -46,6 +47,7 @@ namespace DBreakout
             isColliding = false;
             collidingWith = null;
             heldTime = 0;
+            prePauseState = State.moving;
         }
 
 
@@ -312,21 +314,6 @@ namespace DBreakout
         {
             playArea = area;
         }
-
-
-        public State getState()
-        {
-            return currentState;
-        }
-
-
-        public void setState(State newState)
-        {
-            currentState = newState;
-        }
-
-
-
 
 
     }

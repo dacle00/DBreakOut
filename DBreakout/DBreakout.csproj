@@ -107,6 +107,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Action.cs" />
     <Compile Include="Ball.cs" />
     <Compile Include="Brick.cs" />
     <Compile Include="GameKbdInput.cs" />

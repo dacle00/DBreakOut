@@ -132,7 +132,7 @@ namespace DBreakout
         {
             for (int i = 0; i < numBricks; i++)
             {
-                if (bricks[i].getState()!=Brick.State.broken)
+                if (bricks[i].currentState != Brick.State.broken)
                     bricks[i].Update(gameTime);
             }
         }

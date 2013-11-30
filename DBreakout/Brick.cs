@@ -24,7 +24,7 @@ namespace DBreakout
         {
             breakable, invincible, broken
         }
-        State currentState = State.breakable;
+        public State currentState = State.breakable;
 
 
         public Brick(int power, Color c)
@@ -53,17 +53,6 @@ namespace DBreakout
                 //TODO: is this needed? we don't need to update every brick, every time, do we?
                 //TODO: how do I call base.Update without a speed?
                 base.Update(theGameTime, Vector2.Zero, Vector2.Zero);
-        }
-
-        public void setState(State newState)
-        {
-            currentState = newState;
-        }
-
-
-        public State getState()
-        {
-            return currentState;
         }
 
 

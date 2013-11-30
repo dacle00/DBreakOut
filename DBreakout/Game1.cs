@@ -43,6 +43,7 @@ namespace DBreakout
         const int BRICK_BUFFER_RIGHT = 40;
         Level currentLevel;
         bool showDebug;
+        bool gameIsPaused;
         
 
         public Game1()
@@ -67,6 +68,7 @@ namespace DBreakout
             ball = new Ball();
             currentLevel = new Level();
             showDebug = false;
+            gameIsPaused = false;
             GameInput = new GameKbdInput();
 
             base.Initialize();
@@ -134,18 +136,39 @@ namespace DBreakout
                         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                           this.Exit();
             */
-            String todo = GameInput.Update(gameTime);
-            if (todo == "toggle debug")
-                showDebug = !showDebug;
-            else if (todo=="restart level" || todo=="restart game")
+
+            //sort out inputs
+            GameInput.Update();
+            paddle.paddleInput = new ArrayList();
+            foreach (Action a in GameInput.input)
             {
-                //reinitialize
+                if (a.command.ToString().Contains("Paddle"))
+                    paddle.paddleInput.Add(a);
+                else if (a.command == Action.cmd.ToggleDebug && a.isNew)
+                    showDebug = !showDebug;
+                else if (a.command == Action.cmd.PauseGame && a.isNew)
+                {
+                    gameIsPaused = !gameIsPaused;
+                    if (gameIsPaused)
+                    {
+                        paddle.currentState = Paddle.State.paused;
+                        ball.currentState = Ball.State.paused;
+                    }
+                    else
+                    {
+                        paddle.currentState = paddle.prePauseState;
+                        ball.currentState = ball.prePauseState;
+                    }
+
+                }
+                //TODO: handle all-game inputs here, like pause, restart, toggleDebug, etc.
             }
 
-            // TODO: Add your update logic here
+
             paddle.Update(gameTime);
             ball.Update(gameTime);
-            if (ball.getState() == Ball.State.held)
+
+            if (ball.currentState == Ball.State.held)
                 ball.UpdateWhileHeld(gameTime, paddle.speed, paddle.direction, paddle.position.X + paddle.size.Width);
             //ball.RotateBallToFaceAPoint(new Vector2(400, 300));
             ball.RotateBallToFaceAPoint(paddle.center);
@@ -160,7 +183,7 @@ namespace DBreakout
             for (int i = 0; i < currentLevel.numBricks; i++)
             {
                 //ignore broken bricks
-                if (currentLevel.bricks[i].getState() != Brick.State.broken)
+                if (currentLevel.bricks[i].currentState != Brick.State.broken)
                 {
                     //currentLevel.bricks[i].Update(gameTime); // TODO: is this needed? bricks normally don't change 
                     if (ball.CheckBrickCollision(currentLevel.bricks[i].position, currentLevel.bricks[i].size))
@@ -170,9 +193,9 @@ namespace DBreakout
                         ball.collidingWith = (Brick)currentLevel.bricks[i];
 
                         //damage the collided brick
-                        if (currentLevel.bricks[i].getState() != Brick.State.invincible)
+                        if (currentLevel.bricks[i].currentState != Brick.State.invincible)
                             if (currentLevel.bricks[i].damage++ >= currentLevel.bricks[i].maxDamage)
-                                currentLevel.bricks[i].setState(Brick.State.broken);
+                                currentLevel.bricks[i].currentState = Brick.State.broken;
                     }
                 }
                 else
@@ -180,8 +203,8 @@ namespace DBreakout
                 if (brokenBricks >= currentLevel.bricks.Length)
                 {
                     //winning conditions
-                    ball.setState(Ball.State.paused);
-                    paddle.setState(Paddle.State.paused);
+                    ball.currentState = Ball.State.paused;
+                    paddle.currentState = Paddle.State.paused;
 
                     //TODO: advance level? reset? animation?
                 }
@@ -234,7 +257,7 @@ namespace DBreakout
 
                 for (int i = 0; i < currentLevel.numBricks; i++)
                 {
-                    if (currentLevel.bricks[i].getState() != Brick.State.broken)
+                    if (currentLevel.bricks[i].currentState != Brick.State.broken)
                         if (showDebug)
                             currentLevel.bricks[i].Draw(this.spriteBatch, currentLevel.bricks[i].color, (currentLevel.bricks[i].maxDamage - currentLevel.bricks[i].damage + 1).ToString());
                         else
