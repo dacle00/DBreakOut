@@ -70,7 +70,7 @@ namespace DBreakout
         {
             spriteTexture = theContentManager.Load<Texture2D>(theAssetName);
             size = new Rectangle(0, 0, (int)(spriteTexture.Width * scale), (int)(spriteTexture.Height * scale));
-            debugFont = theContentManager.Load<SpriteFont>("fnt");
+            debugFont = theContentManager.Load<SpriteFont>("font/fnt");
 
         }
 

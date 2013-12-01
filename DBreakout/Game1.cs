@@ -25,6 +25,11 @@ namespace DBreakout
         Sprite brickAreaBackground;
         Sprite playAreaBackground;
 
+        SoundEffect sndBrickPop;
+        SoundEffect sndBallHitBrick;
+        SoundEffect sndBallHitPaddle;
+        SoundEffect sndBallHitSide;
+
         Rectangle playArea;
         const int BUFFER_TOP = 0;
         const int BUFFER_BOTTOM = 0;
@@ -42,6 +47,7 @@ namespace DBreakout
         const int BRICK_BUFFER_LEFT = 200;
         const int BRICK_BUFFER_RIGHT = 40;
         Level currentLevel;
+        static int levelNum=-1;
         bool showDebug;
         bool gameIsPaused;
         
@@ -61,12 +67,15 @@ namespace DBreakout
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            background = new Sprite("MetalB");
-            playAreaBackground = new Sprite("SolidTanBG");
-            brickAreaBackground = new Sprite("SolidBrownBG");
+            background = new Sprite("image/MetalB");
+            playAreaBackground = new Sprite("image/SolidTanBG");
+            brickAreaBackground = new Sprite("image/SolidBrownBG");
             paddle = new Paddle();
             ball = new Ball();
             currentLevel = new Level();
+            levelNum++;
+            if (levelNum<2)
+                levelNum=0;
             showDebug = false;
             gameIsPaused = false;
             GameInput = new GameKbdInput();
@@ -103,17 +112,23 @@ namespace DBreakout
             playArea = new Rectangle(BUFFER_LEFT, BUFFER_TOP, graphics.PreferredBackBufferWidth - (BUFFER_LEFT + BUFFER_RIGHT), graphics.PreferredBackBufferHeight - (BUFFER_TOP + BUFFER_BOTTOM));
             brickArea = new Rectangle(playArea.X + BRICK_BUFFER_LEFT, playArea.Y + BRICK_BUFFER_TOP, playArea.Width - (BRICK_BUFFER_LEFT + BRICK_BUFFER_RIGHT), playArea.Height - (BRICK_BUFFER_TOP + BRICK_BUFFER_BOTTOM));
 
-            background.LoadContent(this.Content, "SolidTanBG");
-            playAreaBackground.LoadContent(this.Content, "MetalBG");
-            brickAreaBackground.LoadContent(this.Content, "SolidBrownBG");
-            paddle.LoadContent(this.Content, "Paddle");
-            ball.LoadContent(this.Content, "Ball3");
+            background.LoadContent(this.Content, "image/SolidTanBG");
+            playAreaBackground.LoadContent(this.Content, "image/MetalBG");
+            brickAreaBackground.LoadContent(this.Content, "image/SolidBrownBG");
+            paddle.LoadContent(this.Content, "image/Paddle");
+            ball.LoadContent(this.Content, "image/Ball3");
 
-            currentLevel = new Level(brickArea, 2); // level 2
+            currentLevel = new Level(brickArea, levelNum); // level 1, 2, or default to level 0
             for (int i = 0; i < currentLevel.numBricks; i++)
             {
-                currentLevel.bricks[i].LoadContent(this.Content, "Brick2");
+                currentLevel.bricks[i].LoadContent(this.Content, "image/Brick2");
             }
+
+            sndBrickPop = Content.Load<SoundEffect>("sound/pop");
+            sndBallHitBrick = Content.Load<SoundEffect>("sound/flop");
+            sndBallHitPaddle = Content.Load<SoundEffect>("sound/pop2");
+            sndBallHitSide= Content.Load<SoundEffect>("sound/tooo");
+
         }
 
         /// <summary>
@@ -132,12 +147,8 @@ namespace DBreakout
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            /*            // Allows the game to exit
-                        if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                          this.Exit();
-            */
 
-            //sort out inputs
+            //sort through all current inputs
             GameInput.Update();
             paddle.paddleInput = new ArrayList();
             foreach (Action a in GameInput.input)
@@ -159,18 +170,17 @@ namespace DBreakout
                         paddle.currentState = paddle.prePauseState;
                         ball.currentState = ball.prePauseState;
                     }
-
+                    //TODO: handle all-game inputs here, like pause, restart, toggleDebug, etc.
                 }
-                //TODO: handle all-game inputs here, like pause, restart, toggleDebug, etc.
             }
 
 
             paddle.Update(gameTime);
-            ball.Update(gameTime);
+            if (ball.Update(gameTime))
+                sndBallHitSide.Play();
 
             if (ball.currentState == Ball.State.held)
                 ball.UpdateWhileHeld(gameTime, paddle.speed, paddle.direction, paddle.position.X + paddle.size.Width);
-            //ball.RotateBallToFaceAPoint(new Vector2(400, 300));
             ball.RotateBallToFaceAPoint(paddle.center);
             currentLevel.Update(gameTime);
 
@@ -195,7 +205,12 @@ namespace DBreakout
                         //damage the collided brick
                         if (currentLevel.bricks[i].currentState != Brick.State.invincible)
                             if (currentLevel.bricks[i].damage++ >= currentLevel.bricks[i].maxDamage)
+                            {
                                 currentLevel.bricks[i].currentState = Brick.State.broken;
+                                sndBrickPop.Play(); //play pop sound
+                            }
+                            else
+                                sndBallHitBrick.Play();
                     }
                 }
                 else
@@ -206,7 +221,7 @@ namespace DBreakout
                     ball.currentState = Ball.State.paused;
                     paddle.currentState = Paddle.State.paused;
 
-                    //TODO: advance level? reset? animation?
+                    Initialize();
                 }
             }
 
@@ -219,9 +234,8 @@ namespace DBreakout
                 ball.isColliding = true;
                 ball.collidingWith = (Paddle)paddle;
                 //ball.setState(Ball.State.held);
+                sndBallHitPaddle.Play();
 
-
-                //play sound
                 //sticky powerup?
                 //accel ball?
 

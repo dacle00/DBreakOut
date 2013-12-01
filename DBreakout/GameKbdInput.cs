@@ -38,30 +38,28 @@ namespace DBreakout
 
         public void CheckGameInput(KeyboardState kboard)
         {
-            ArrayList newActions = new ArrayList();
+            input.Clear();
 
             if (kboard.IsKeyDown(Keys.F3) && prevKeyboardState.IsKeyUp(Keys.F3))
-                newActions.Add(new Action(Action.cmd.ToggleDebug, true));
+                input.Add(new Action(Action.cmd.ToggleDebug, true));
 
             if (kboard.IsKeyDown(Keys.R) && kbdState.IsKeyDown(Keys.LeftShift))
-                newActions.Add(new Action(Action.cmd.RestartGame, prevKeyboardState.IsKeyUp(Keys.R)));
+                input.Add(new Action(Action.cmd.RestartGame, prevKeyboardState.IsKeyUp(Keys.R)));
 
             if (kboard.IsKeyDown(Keys.R) && kbdState.IsKeyUp(Keys.LeftShift))
-                newActions.Add(new Action(Action.cmd.RestartLevel, prevKeyboardState.IsKeyUp(Keys.R)));
+                input.Add(new Action(Action.cmd.RestartLevel, prevKeyboardState.IsKeyUp(Keys.R)));
 
             if (kboard.IsKeyDown(Keys.P))
-                newActions.Add(new Action(Action.cmd.PauseGame, prevKeyboardState.IsKeyUp(Keys.P)));
+                input.Add(new Action(Action.cmd.PauseGame, prevKeyboardState.IsKeyUp(Keys.P)));
 
             if (kboard.IsKeyDown(Keys.W))
-                newActions.Add(new Action(Action.cmd.PaddleUp, prevKeyboardState.IsKeyUp(Keys.W)));
+                input.Add(new Action(Action.cmd.PaddleUp, prevKeyboardState.IsKeyUp(Keys.W)));
 
             if (kboard.IsKeyDown(Keys.S))
-                newActions.Add(new Action(Action.cmd.PaddleDown, prevKeyboardState.IsKeyUp(Keys.S)));
+                input.Add(new Action(Action.cmd.PaddleDown, prevKeyboardState.IsKeyUp(Keys.S)));
 
             if (kboard.IsKeyDown(Keys.Space))
-                newActions.Add(new Action(Action.cmd.PaddleAction, prevKeyboardState.IsKeyUp(Keys.Space)));
-
-            input = newActions;        
+                input.Add(new Action(Action.cmd.PaddleAction, prevKeyboardState.IsKeyUp(Keys.Space)));
         }
 
 

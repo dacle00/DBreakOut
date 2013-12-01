@@ -54,16 +54,19 @@ namespace DBreakout
         public void LoadContent(ContentManager theContentManager)
         {
             position = new Vector2(START_POS_X, START_POS_Y);
+
             base.LoadContent(theContentManager, BALL_NAME);
+
         }
 
 
-        public void Update(GameTime theGameTime)
+        public bool Update(GameTime theGameTime)
         {
+            bool wallHit = false;
             if (currentState==State.moving)
             {
                 UpdateMovement();
-                doWallCollision();
+                wallHit = doWallCollision();
                 base.Update(theGameTime, speed, direction);
             }
             else if (currentState==State.held)
@@ -78,6 +81,7 @@ namespace DBreakout
                     currentState = State.moving;
                 }
             }
+            return wallHit;
         }
 
         
@@ -124,8 +128,9 @@ namespace DBreakout
         }
 
 
-        protected void doWallCollision()
+        protected bool doWallCollision()
         {
+            bool hit = false;
             //use playArea rectangle. stay within it.
 
             if (position.X <= playArea.X)
@@ -133,6 +138,7 @@ namespace DBreakout
                 //collision with left side of play area
                 position.X = playArea.X;
                 direction.X = MOVE_RIGHT;
+                hit = true;
             }
 
             if (position.X >= (playArea.Width - size.Width))
@@ -140,6 +146,7 @@ namespace DBreakout
                 //collision with right side of play area
                 position.X = playArea.Width - size.Width;
                 direction.X = MOVE_LEFT;
+                hit = true;
             }
 
             if (position.Y <= playArea.Y)
@@ -147,6 +154,7 @@ namespace DBreakout
                 //collision with top of play area
                 position.Y = playArea.Y;
                 direction.Y = MOVE_DOWN;
+                hit = true;
             }
 
             if (position.Y >= (playArea.Height - size.Height))
@@ -154,7 +162,10 @@ namespace DBreakout
                 //collision with bottom of play area
                 position.Y = playArea.Height - size.Height;
                 direction.Y = MOVE_UP;
+                hit = true;
             }
+
+            return hit;
         }
 
 

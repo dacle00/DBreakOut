@@ -70,7 +70,7 @@ namespace DBreakout
             numBricks = 1;
             breakableBricks = 1;
             brokenBricks = 0;
-      bricks = new Brick[numBricks];
+            bricks = new Brick[numBricks];
             for (int i = 0; i < numBricks; i++)
             {
                 Random rnd = new Random();
@@ -97,8 +97,7 @@ namespace DBreakout
             }
         }
 
-        // a diagonal block of bricks, top left to bottom right
-        //TODO: why is brickArea still ZEROs for this level, but not for other levels?
+        // a block of bricks.
         private void buildLevel2()
         {
             int rows = 5;
@@ -115,10 +114,10 @@ namespace DBreakout
                 for (int i = 0; i < rows; i++)
                 {
 
-                    Random rnd = new Random();
-                    int r = rnd.Next(1, 3);
+                    Random pwr = new Random(DateTime.Now.Millisecond);
+                    int power = pwr.Next(4)+1;
 
-                    bricks[c] = new Brick(r, colors[i]);
+                    bricks[c] = new Brick(power, colors[i]);
                     bricks[c].position = new Vector2(brickArea.Right/4*3-(i * w), brickArea.Top+(j * h));
                     c++;
                     //bricks[c++].position = new Vector2(brickArea.X + brickArea.Width - (i * bricks[i].size.Width) + (i * bricks[i].size.Width), brickArea.Y + (j * bricks[i].size.Height));
